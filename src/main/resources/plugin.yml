@@ -1,0 +1,6 @@
+name: BasePlugin
+main: com.uniloftsky.nukkit.plugin.BasePlugin
+version: "${pom.version}"
+api: [ "1.0.0" ]
+author: uniloftsky
+description: Layout plugin
