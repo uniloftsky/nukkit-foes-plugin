@@ -1,6 +1,6 @@
-name: BasePlugin
-main: com.uniloftsky.nukkit.plugin.BasePlugin
+name: FoesPlugin
+main: net.uniloftsky.nukkit.foes.FoesPlugin
 version: "${pom.version}"
 api: [ "1.0.0" ]
 author: uniloftsky
-description: Layout plugin
+description: Foes plugin to define area where foes will be spawned. Type and amount of foes can be specified as well
