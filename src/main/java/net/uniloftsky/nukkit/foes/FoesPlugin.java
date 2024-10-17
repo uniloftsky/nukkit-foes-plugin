@@ -1,12 +1,17 @@
 package net.uniloftsky.nukkit.foes;
 
+import cn.nukkit.Server;
+import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityLiving;
 import cn.nukkit.entity.mob.EntityZombie;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import net.uniloftsky.nukkit.foes.listener.EventListener;
 import net.uniloftsky.nukkit.foes.listener.observer.EntityEventPublisher;
 
 import java.util.List;
+import java.util.Map;
 
 public class FoesPlugin extends PluginBase {
 
@@ -37,7 +42,21 @@ public class FoesPlugin extends PluginBase {
     public void onDisable() {
         this.getLogger().info("FoesPlugin disabled!");
 
+        // kill all alive entities
+        removeAliveFoes();
+
         // shutdown executor in EntityEventPublisher
         EntityEventPublisher.shutdownPublisher();
+    }
+
+    private void removeAliveFoes() {
+        Map<Integer, Level> levels = Server.getInstance().getLevels();
+        for (Level level : levels.values()) {
+            for (Entity entity : level.getEntities()) {
+                if (entity instanceof EntityLiving livingEntity) {
+                    livingEntity.close();
+                }
+            }
+        }
     }
 }
