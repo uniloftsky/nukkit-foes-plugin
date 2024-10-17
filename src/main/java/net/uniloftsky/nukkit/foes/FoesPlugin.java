@@ -4,6 +4,7 @@ import cn.nukkit.entity.mob.EntityZombie;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import net.uniloftsky.nukkit.foes.listener.EventListener;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventPublisher;
 
 import java.util.List;
 
@@ -35,5 +36,8 @@ public class FoesPlugin extends PluginBase {
     @Override
     public void onDisable() {
         this.getLogger().info("FoesPlugin disabled!");
+
+        // shutdown executor in EntityEventPublisher
+        EntityEventPublisher.shutdownPublisher();
     }
 }

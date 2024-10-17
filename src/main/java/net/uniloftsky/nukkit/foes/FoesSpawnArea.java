@@ -5,19 +5,15 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.scheduler.Task;
-import net.uniloftsky.nukkit.foes.listener.entity.EntityEventPublisher;
-import net.uniloftsky.nukkit.foes.listener.entity.EntityEventSubscriber;
-import net.uniloftsky.nukkit.foes.listener.entity.EntityEventType;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventPublisher;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventSubscriber;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class FoesSpawnArea<T extends Entity> extends Task implements EntityEventSubscriber {
-
-    private static final FoesPlugin PLUGIN = FoesPlugin.getInstance();
-
-    private static final String ENTITY_ID_FIELD = "_id";
 
     /**
      * Set of spawn points where foes can be spawned
@@ -83,7 +79,16 @@ public class FoesSpawnArea<T extends Entity> extends Task implements EntityEvent
         switch (eventType) {
             case ENTITY_KILLED:
             case ENTITY_REMOVED:
-                aliveEntities.remove(entity);
+                removeAliveEntity(entity);
         }
+    }
+
+    /**
+     * Thread-safe method to remove entity from the alive entities list
+     *
+     * @param entity entity to remove
+     */
+    private synchronized void removeAliveEntity(Entity entity) {
+        aliveEntities.remove(entity);
     }
 }

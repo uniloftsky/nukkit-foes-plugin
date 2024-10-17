@@ -10,8 +10,8 @@ import cn.nukkit.event.server.ServerStopEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import net.uniloftsky.nukkit.foes.FoesPlugin;
-import net.uniloftsky.nukkit.foes.listener.entity.EntityEventPublisher;
-import net.uniloftsky.nukkit.foes.listener.entity.EntityEventType;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventPublisher;
+import net.uniloftsky.nukkit.foes.listener.observer.EntityEventType;
 
 import java.util.Map;
 
