@@ -13,33 +13,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class FoesSpawnArea<T extends Entity> extends Task implements EntityEventSubscriber {
+public class SpawnArea extends Task implements EntityEventSubscriber {
 
     /**
-     * Set of spawn points where foes can be spawned
+     * Set of spawn points where foes can spawn
      */
-    private List<Position> spawnPoints;
+    private final List<Position> spawnPoints;
 
     /**
      * Max size of spawned foes at the same time
      */
-    private int maxEntitiesSize;
+    private final int maxEntitiesSize;
 
     /**
      * List of alive foes in current spawn area
      */
-    private List<Entity> aliveEntities;
+    private final List<Entity> aliveEntities;
 
     /**
-     * Type of foe
+     * Entity NETWORK_ID value
      */
-    private FoeType foeType;
+    private final int entityId;
 
-    public FoesSpawnArea(List<Position> spawnPoints, int maxEntitiesSize, FoeType foeType) {
+    /**
+     * Constructor to create a spawn area
+     *
+     * @param entityId        entity NETWORK_ID. Can be retrieved from static NETWORK_ID property of every entity class. For example 'EntityZombie.NETWORK_ID'
+     * @param spawnPoints     list of spawn points positions
+     * @param maxEntitiesSize max amount of entities alive at once
+     */
+    public SpawnArea(int entityId, List<Position> spawnPoints, int maxEntitiesSize) {
         this.spawnPoints = new ArrayList<>(spawnPoints);
         this.maxEntitiesSize = maxEntitiesSize;
         this.aliveEntities = new ArrayList<>(maxEntitiesSize);
-        this.foeType = foeType;
+        this.entityId = entityId;
 
         EntityEventPublisher.subscribe(this, EntityEventType.ENTITY_KILLED, EntityEventType.ENTITY_REMOVED);
     }
@@ -58,9 +65,15 @@ public class FoesSpawnArea<T extends Entity> extends Task implements EntityEvent
         }
     }
 
+    @Override
+    public void onCancel() {
+        super.onCancel();
+        aliveEntities.clear();
+    }
+
     private Entity createEntity() {
         Position randomSpawnPosition = getRandomSpawnPosition();
-        return Entity.createEntity("Zombie", randomSpawnPosition);
+        return Entity.createEntity(entityId, randomSpawnPosition);
     }
 
     private Position getRandomSpawnPosition() {

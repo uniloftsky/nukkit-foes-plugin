@@ -31,7 +31,7 @@ public class FoesPlugin extends PluginBase {
         this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
 
         // initializing foes spawn area
-        FoesSpawnArea<EntityZombie> zombieSpawnArea = new FoesSpawnArea<>(List.of(new Position(54, 86, 243, this.getServer().getDefaultLevel()), new Position(59, 86, 243, this.getServer().getDefaultLevel())), 5, FoeType.ZOMBIE);
+        SpawnArea zombieSpawnArea = new SpawnArea(EntityZombie.NETWORK_ID, List.of(new Position(54, 86, 243, this.getServer().getDefaultLevel()), new Position(59, 86, 243, this.getServer().getDefaultLevel())), 5);
         this.getServer().getScheduler().scheduleRepeatingTask(zombieSpawnArea, 200);
     }
 
