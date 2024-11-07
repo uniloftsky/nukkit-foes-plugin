@@ -27,7 +27,7 @@ public class EntityEventPublisher {
     /**
      * Lock manager to obtain locks on specific event types
      */
-    private static IdBasedLockManager<EntityEventType> eventTypeLockManager = new SafeIdBasedLockManager<>();
+    private static IdBasedLockManager<EntityEventType> lockManager = new SafeIdBasedLockManager<>();
 
     /**
      * Map of subscribers that have a subscription for entity-related events
@@ -50,7 +50,7 @@ public class EntityEventPublisher {
      */
     public static void subscribe(EntityEventSubscriber subscriber, EntityEventType... types) {
         for (EntityEventType type : types) {
-            IdBasedLock<EntityEventType> lock = eventTypeLockManager.obtainLock(type);
+            IdBasedLock<EntityEventType> lock = lockManager.obtainLock(type);
             lock.lock();
             try {
                 List<EntityEventSubscriber> eventSubscribers = INSTANCE.subscribers.get(type);
@@ -68,7 +68,7 @@ public class EntityEventPublisher {
      * @param entity affected entity
      */
     public static void pushEvent(EntityEventType type, Entity entity) {
-        IdBasedLock<EntityEventType> lock = eventTypeLockManager.obtainLock(type);
+        IdBasedLock<EntityEventType> lock = lockManager.obtainLock(type);
         lock.lock();
         try {
             List<EntityEventSubscriber> eventSubscribers = INSTANCE.subscribers.get(type);
