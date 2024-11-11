@@ -3,17 +3,19 @@ package net.uniloftsky.nukkit.foes;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
+import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.level.Position;
+import cn.nukkit.plugin.PluginLogger;
 import cn.nukkit.scheduler.Task;
-import net.uniloftsky.nukkit.foes.listener.observer.EntityEventPublisher;
-import net.uniloftsky.nukkit.foes.listener.observer.EntityEventSubscriber;
-import net.uniloftsky.nukkit.foes.listener.observer.EntityEventType;
+import net.uniloftsky.nukkit.foes.observer.EventSubscriber;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class SpawnArea extends Task implements EntityEventSubscriber {
+public class SpawnArea extends Task {
+
+    private static final PluginLogger log = FoesPlugin.getInstance().getLogger();
 
     /**
      * Set of spawn points where foes can spawn
@@ -48,7 +50,7 @@ public class SpawnArea extends Task implements EntityEventSubscriber {
         this.aliveEntities = new ArrayList<>(maxEntitiesSize);
         this.entityId = entityId;
 
-        EntityEventPublisher.subscribe(this, EntityEventType.ENTITY_KILLED, EntityEventType.ENTITY_REMOVED);
+        new SpawnAreaSubscriber();
     }
 
     /**
@@ -61,13 +63,17 @@ public class SpawnArea extends Task implements EntityEventSubscriber {
         if (aliveEntities.size() < maxEntitiesSize) {
             Entity entity = createEntity();
             spawnEntity(entity);
-            aliveEntities.add(entity); // add entity to the list of alive entities
         }
     }
 
     @Override
     public void onCancel() {
         super.onCancel();
+
+        // despawn and clear all the entities on cancel
+        for (Entity aliveEntity : aliveEntities) {
+            aliveEntity.close();
+        }
         aliveEntities.clear();
     }
 
@@ -85,15 +91,7 @@ public class SpawnArea extends Task implements EntityEventSubscriber {
         CreatureSpawnEvent spawnEvent = new CreatureSpawnEvent(entity.getNetworkId(), entity.getPosition(), entity.namedTag, CreatureSpawnEvent.SpawnReason.NATURAL);
         Server.getInstance().getPluginManager().callEvent(spawnEvent);
         entity.spawnToAll();
-    }
-
-    @Override
-    public void handleEvent(EntityEventType eventType, Entity entity) {
-        switch (eventType) {
-            case ENTITY_KILLED:
-            case ENTITY_REMOVED:
-                removeAliveEntity(entity);
-        }
+        aliveEntities.add(entity);
     }
 
     /**
@@ -103,5 +101,23 @@ public class SpawnArea extends Task implements EntityEventSubscriber {
      */
     private synchronized void removeAliveEntity(Entity entity) {
         aliveEntities.remove(entity);
+    }
+
+    /**
+     * Events subscriber
+     */
+    private class SpawnAreaSubscriber extends EventSubscriber {
+
+        private SpawnAreaSubscriber() {
+            super(log);
+
+            registerHandler(EntityDeathEvent.class, this::handleEntityDeathEvent);
+        }
+
+        private void handleEntityDeathEvent(EntityDeathEvent event) {
+            if (event.getEntity().getNetworkId() == entityId) {
+                removeAliveEntity(event.getEntity());
+            }
+        }
     }
 }
