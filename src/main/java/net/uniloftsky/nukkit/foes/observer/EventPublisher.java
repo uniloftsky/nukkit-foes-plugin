@@ -32,15 +32,18 @@ public class EventPublisher {
      * The subscriber will be notified whenever an event of the specified type is published.
      *
      * @param subscriber subscriber to register
-     * @param eventType  event type to subscribe to
+     * @param eventTypes event types to subscribe to
      */
-    public static synchronized void subscribe(EventSubscriber subscriber, Class<? extends Event> eventType) {
-        List<EventSubscriber> subscribersByType = INSTANCE.subscribers.get(eventType);
-        if (subscribersByType == null) {
-            subscribersByType = new ArrayList<>();
+    @SafeVarargs /* safe because there is only the iteration */
+    public static synchronized void subscribe(EventSubscriber subscriber, Class<? extends Event>... eventTypes) {
+        for (Class<? extends Event> event : eventTypes) {
+            List<EventSubscriber> subscribersByType = INSTANCE.subscribers.get(event);
+            if (subscribersByType == null) {
+                subscribersByType = new ArrayList<>();
+            }
+            subscribersByType.add(subscriber);
+            INSTANCE.subscribers.put(event, subscribersByType);
         }
-        subscribersByType.add(subscriber);
-        INSTANCE.subscribers.put(eventType, subscribersByType);
     }
 
     /**
