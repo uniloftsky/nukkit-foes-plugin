@@ -37,12 +37,10 @@ public class EventPublisher {
     @SafeVarargs /* safe because there is only the iteration */
     public static synchronized void subscribe(EventSubscriber subscriber, Class<? extends Event>... eventTypes) {
         for (Class<? extends Event> event : eventTypes) {
-            List<EventSubscriber> subscribersByType = INSTANCE.subscribers.get(event);
-            if (subscribersByType == null) {
-                subscribersByType = new ArrayList<>();
+            List<EventSubscriber> subscribersByType = INSTANCE.subscribers.computeIfAbsent(event, k -> new ArrayList<>());
+            if (!subscribersByType.contains(subscriber)) {
+                subscribersByType.add(subscriber);
             }
-            subscribersByType.add(subscriber);
-            INSTANCE.subscribers.put(event, subscribersByType);
         }
     }
 
