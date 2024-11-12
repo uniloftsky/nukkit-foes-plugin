@@ -2,10 +2,10 @@ package net.uniloftsky.nukkit.foes;
 
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.NukkitRandom;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Spawn area to store and manage alive entities.
@@ -56,18 +56,18 @@ public class SpawnArea {
      *
      * @return next spawn position for an entity
      */
-    public Position getNextSpawnPosition() {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        int spawnPositionIndex = random.nextInt(spawnPoints.size());
+    public Position getNextSpawnPosition(NukkitRandom nukkitRandom) {
+        int lastIndex = spawnPoints.size() - 1;
+        int randomSpawnIndex = nukkitRandom.nextRange(0, lastIndex);
 
         int safetyCounter = 1;
-        while (spawnPositionIndex == lastUsedPositionIndex && safetyCounter < SAFETY_COUNTER_LIMIT) {
-            spawnPositionIndex = random.nextInt(spawnPoints.size());
+        while (randomSpawnIndex == lastUsedPositionIndex && safetyCounter < SAFETY_COUNTER_LIMIT) {
+            randomSpawnIndex = nukkitRandom.nextRange(0, lastIndex);
             safetyCounter++;
         }
 
-        lastUsedPositionIndex = spawnPositionIndex;
-        return spawnPoints.get(spawnPositionIndex);
+        lastUsedPositionIndex = randomSpawnIndex;
+        return spawnPoints.get(randomSpawnIndex);
     }
 
     /**

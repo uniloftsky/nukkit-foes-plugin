@@ -5,6 +5,7 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.plugin.PluginLogger;
 import cn.nukkit.scheduler.Task;
 import net.uniloftsky.nukkit.foes.observer.EventSubscriber;
@@ -17,6 +18,11 @@ public class SpawnAreaProcessor extends Task {
      * Spawn area
      */
     private SpawnArea spawnArea;
+
+    /**
+     * Nukkit random object
+     */
+    private NukkitRandom random;
 
     /**
      * Entity NETWORK_ID value
@@ -32,6 +38,7 @@ public class SpawnAreaProcessor extends Task {
     public SpawnAreaProcessor(int entityId, SpawnArea spawnArea) {
         this.entityId = entityId;
         this.spawnArea = spawnArea;
+        this.random = new NukkitRandom();
 
         new SpawnAreaProcessorSubscriber();
     }
@@ -44,7 +51,7 @@ public class SpawnAreaProcessor extends Task {
     @Override
     public void onRun(int period) {
         if (!spawnArea.isFull()) {
-            Position nextSpawnPosition = spawnArea.getNextSpawnPosition();
+            Position nextSpawnPosition = spawnArea.getNextSpawnPosition(random);
             Entity entity = Entity.createEntity(entityId, nextSpawnPosition);
             spawnEntity(entity);
         }
