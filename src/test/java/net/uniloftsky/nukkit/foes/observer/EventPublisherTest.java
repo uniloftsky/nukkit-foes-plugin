@@ -4,83 +4,100 @@ import cn.nukkit.event.Event;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EventPublisherTest {
 
+    @Mock
+    private ExecutorService executorService;
+
+    @Spy
+    private Map<Class<? extends Event>, List<EventSubscriber>> subscribers = new HashMap<>();
+
+    @InjectMocks
+    private EventPublisher testPublisher = new EventPublisher(executorService);
+
     @Test
-    @SuppressWarnings("unchecked")
-    public void testSubscribe() throws NoSuchFieldException, IllegalAccessException {
+    public void testSubscribe() {
 
         // given
         EventSubscriber subscriber = mock(EventSubscriber.class);
-        Class<? extends Event> testEvent = PlayerJoinEvent.class;
+        Class<? extends Event> eventType = PlayerJoinEvent.class;
 
         // when
-        EventPublisher.subscribe(subscriber, testEvent);
+        testPublisher.subscribe(subscriber, eventType);
 
         // then
-        EventPublisher instance = getPublisherInstance();
+        int subscribersSize = subscribers.size();
+        assertTrue(subscribersSize > 0);
+        List<EventSubscriber> actualSubscribers = subscribers.get(eventType);
+        assertNotNull(actualSubscribers);
+        assertTrue(actualSubscribers.contains(subscriber));
 
-        // test publisher subscribers
-        Field subscribersField = EventPublisher.class.getDeclaredField("subscribers");
-        subscribersField.setAccessible(true);
-        Map<Class<? extends Event>, List<EventSubscriber>> subscribers = (Map<Class<? extends Event>, List<EventSubscriber>>) subscribersField.get(instance);
-
-        assertFalse(subscribers.isEmpty());
-        List<EventSubscriber> subscribersByType = subscribers.get(testEvent);
-        assertNotNull(subscribersByType);
-        assertTrue(subscribersByType.contains(subscriber));
+        // test that the same subscriber can be registered only once
+        testPublisher.subscribe(subscriber, eventType);
+        assertEquals(subscribersSize, subscribers.size());
+        assertTrue(actualSubscribers.contains(subscriber));
     }
 
     @Test
     public void testPushEvent() {
 
         // given
-        Class<? extends Event> eventClass = PlayerJoinEvent.class;
-        Event event = mock(eventClass);
+        PlayerJoinEvent event = mock(PlayerJoinEvent.class);
         EventSubscriber subscriber = mock(EventSubscriber.class);
-        EventPublisher.subscribe(subscriber, eventClass);
+        Class<PlayerJoinEvent> eventType = PlayerJoinEvent.class;
+        testPublisher.subscribe(subscriber, eventType);
 
         // when
-        EventPublisher.pushEvent(event);
+        testPublisher.pushEvent(event);
 
         // then
-        then(subscriber).should().handleEvent(event);
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executorService).submit(runnableCaptor.capture());
+        runnableCaptor.getValue().run();
+        verify(subscriber).handleEvent(event);
     }
 
     @Test
-    public void testShutdown() throws NoSuchFieldException, IllegalAccessException {
+    public void testShutdown() {
 
         // given
-        // get executor
-        Field executorField = EventPublisher.class.getDeclaredField("executor");
-        executorField.setAccessible(true);
-        ExecutorService executor = (ExecutorService) executorField.get(null);
+        given(executorService.isShutdown()).willReturn(false);
 
         // when
-        EventPublisher.shutdown();
+        testPublisher.shutdown();
 
         // then
-        assertTrue(executor.isShutdown());
+        then(executorService).should().shutdown();
     }
 
-    private EventPublisher getPublisherInstance() throws NoSuchFieldException, IllegalAccessException {
-        Field instanceField = EventPublisher.class.getDeclaredField("INSTANCE");
-        instanceField.setAccessible(true);
+    @Test
+    public void testShutdownAlreadyStopped() {
 
-        // get the singleton publisher instance from the publisher instance field
-        return (EventPublisher) instanceField.get(null);
+        // given
+        given(executorService.isShutdown()).willReturn(true);
+
+        // when
+        testPublisher.shutdown();
+
+        // then
+        then(executorService).should(times(0)).shutdown();
     }
 
 }

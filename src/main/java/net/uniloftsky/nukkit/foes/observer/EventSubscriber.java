@@ -19,23 +19,26 @@ public abstract class EventSubscriber {
     /**
      * Registry for event handlers, where each {@link Event} type is associated with a specific handler
      */
-    private final Map<Class<? extends Event>, EventHandler<? extends Event>> handlers = new HashMap<>();
+    private Map<Class<? extends Event>, EventHandler<? extends Event>> handlers = new HashMap<>();
 
-    private final PluginLogger logger;
+    /**
+     * Plugin logger instance
+     */
+    private PluginLogger logger;
 
     protected EventSubscriber(PluginLogger logger) {
         this.logger = logger;
     }
 
     /**
-     * Register an event handler for a specific event type
+     * Subscribe on the given event type and register a handler for it.
      *
      * @param eventType class of event type to handle
      * @param handler   event handler for the specific event type
      * @param <T>       type of event
      */
-    protected <T extends Event> void registerHandler(Class<T> eventType, EventHandler<T> handler) {
-        EventPublisher.subscribe(this, eventType);
+    protected <T extends Event> void subscribeOnEvent(Class<T> eventType, EventHandler<T> handler) {
+        EventPublisher.getInstance().subscribe(this, eventType);
         handlers.put(eventType, handler);
     }
 

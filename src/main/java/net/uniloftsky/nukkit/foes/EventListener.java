@@ -17,7 +17,7 @@ public class EventListener implements Listener {
     public void onEntityDeath(EntityDeathEvent event) {
 
         // push entity killed event
-        EventPublisher.pushEvent(event);
+        EventPublisher.getInstance().pushEvent(event);
     }
 
 }

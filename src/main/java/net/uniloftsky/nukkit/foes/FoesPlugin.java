@@ -37,6 +37,6 @@ public class FoesPlugin extends PluginBase {
         this.getLogger().info("FoesPlugin disabled!");
 
         // shutdown executor in EntityEventPublisher
-        EventPublisher.shutdown();
+        EventPublisher.getInstance().shutdown();
     }
 }

@@ -111,7 +111,7 @@ public class SpawnArea extends Task {
         private SpawnAreaSubscriber() {
             super(log);
 
-            registerHandler(EntityDeathEvent.class, this::handleEntityDeathEvent);
+            subscribeOnEvent(EntityDeathEvent.class, this::handleEntityDeathEvent);
         }
 
         private void handleEntityDeathEvent(EntityDeathEvent event) {
