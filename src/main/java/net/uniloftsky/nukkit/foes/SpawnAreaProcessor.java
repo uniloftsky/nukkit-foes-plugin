@@ -7,6 +7,9 @@ import cn.nukkit.level.Position;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.scheduler.Task;
 
+/**
+ * Scheduled task for spawn area. Must be used along with {@link cn.nukkit.scheduler.ServerScheduler}
+ */
 public class SpawnAreaProcessor extends Task {
 
     /**
@@ -37,7 +40,7 @@ public class SpawnAreaProcessor extends Task {
     }
 
     /**
-     * Initialize and start the foes spawn area.
+     * Process the spawn area - manage existing entities.
      *
      * @param period ticks interval how often spawn area would be processed by scheduler
      */

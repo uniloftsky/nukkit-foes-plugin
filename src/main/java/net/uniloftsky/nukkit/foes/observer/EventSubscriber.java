@@ -6,7 +6,7 @@ import cn.nukkit.plugin.PluginLogger;
 import java.util.*;
 
 /**
- * Abstract class for event subscribers.
+ * Abstract class for events subscribers.
  * <p>
  * Subclasses can subscribe for specific Nukkit {@link Event} classes.
  * <p>

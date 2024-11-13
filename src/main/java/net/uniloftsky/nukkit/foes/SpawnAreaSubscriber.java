@@ -9,6 +9,12 @@ import net.uniloftsky.nukkit.foes.observer.EventSubscriber;
 
 import java.util.Map;
 
+/**
+ * Events handler for spawn area.
+ * <p>
+ * Functionality of this class is based on events from EventPublisher.
+ * Subscriber component consumes events and performs some actions on the spawn area considering the event type.
+ */
 public class SpawnAreaSubscriber extends EventSubscriber {
 
     private final int entityId;
