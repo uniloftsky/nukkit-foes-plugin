@@ -31,8 +31,8 @@ public class FoesPlugin extends PluginBase {
         SpawnAreaProcessor spawnAreaProcessor = new SpawnAreaProcessor(EntityZombie.NETWORK_ID, spawnArea);
         this.getServer().getScheduler().scheduleRepeatingTask(spawnAreaProcessor, 200);
 
-        SpawnAreaSubscriber spawnAreaSubscriber = new SpawnAreaSubscriber(EntityZombie.NETWORK_ID, spawnArea, this.getLogger());
-        eventListener.subscribe(spawnAreaSubscriber);
+        SpawnAreaEventSubscriber spawnAreaEventSubscriber = new SpawnAreaEventSubscriber(EntityZombie.NETWORK_ID, spawnArea, this.getLogger());
+        eventListener.subscribe(spawnAreaEventSubscriber);
 
         this.getLogger().info("FoesPlugin enabled!");
     }

@@ -21,7 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
-public class SpawnAreaSubscriberTest {
+public class SpawnAreaEventSubscriberTest {
 
     private final int entityId = 1;
 
@@ -32,11 +32,11 @@ public class SpawnAreaSubscriberTest {
     private SpawnArea spawnArea;
 
     @InjectMocks
-    private SpawnAreaSubscriber testSpawnAreaSubscriber = new SpawnAreaSubscriber(entityId, spawnArea, logger);
+    private SpawnAreaEventSubscriber testSpawnAreaEventSubscriber = new SpawnAreaEventSubscriber(entityId, spawnArea, logger);
 
     @Test
     public void testGetHandlersMap() {
-        Map<Class<? extends Event>, EventHandler<? extends Event>> result = testSpawnAreaSubscriber.getHandlersMap();
+        Map<Class<? extends Event>, EventHandler<? extends Event>> result = testSpawnAreaEventSubscriber.getHandlersMap();
         assertNotNull(result);
         assertFalse(result.isEmpty());
     }
@@ -51,7 +51,7 @@ public class SpawnAreaSubscriberTest {
         given(event.getEntity()).willReturn(entity);
 
         // when
-        testSpawnAreaSubscriber.onEntityDeath(event);
+        testSpawnAreaEventSubscriber.onEntityDeath(event);
 
         // then
         then(spawnArea).should().removeEntity(entity);
@@ -68,7 +68,7 @@ public class SpawnAreaSubscriberTest {
         given(event.getEntity()).willReturn(entity);
 
         // when
-        testSpawnAreaSubscriber.onEntityDeath(event);
+        testSpawnAreaEventSubscriber.onEntityDeath(event);
 
         // then
         then(spawnArea).should(times(0)).removeEntity(entity);

@@ -15,13 +15,13 @@ import java.util.Map;
  * Functionality of this class is based on events from EventPublisher.
  * Subscriber component consumes events and performs some actions on the spawn area considering the event type.
  */
-public class SpawnAreaSubscriber extends EventSubscriber {
+public class SpawnAreaEventSubscriber extends EventSubscriber {
 
     private final int entityId;
 
     private SpawnArea spawnArea;
 
-    SpawnAreaSubscriber(int entityId, SpawnArea spawnArea, PluginLogger logger) {
+    SpawnAreaEventSubscriber(int entityId, SpawnArea spawnArea, PluginLogger logger) {
         super(logger);
 
         this.entityId = entityId;
