@@ -28,8 +28,8 @@ public class SpawnAreaSubscriber extends EventSubscriber {
     }
 
     public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity().getNetworkId() == entityId) {
-            Entity entity = event.getEntity();
+        Entity entity = event.getEntity();
+        if (entity.getNetworkId() == entityId) {
             spawnArea.removeEntity(entity);
         }
     }
