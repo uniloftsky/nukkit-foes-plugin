@@ -27,11 +27,6 @@ public abstract class EventSubscriber {
     protected EventSubscriber(PluginLogger logger) {
         this.logger = logger;
         this.handlers = getHandlersMap();
-
-        // subscribe to registered event types
-        handlers.forEach((eventType, handler) -> {
-            EventPublisher.getInstance().subscribe(this);
-        });
     }
 
     /**

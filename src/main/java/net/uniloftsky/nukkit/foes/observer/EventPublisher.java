@@ -38,13 +38,6 @@ public final class EventPublisher {
     }
 
     /**
-     * Reset event publisher instance. Must be used only for test purpose!
-     */
-    public static synchronized void resetInstance() {
-        INSTANCE = null;
-    }
-
-    /**
      * Executor service to notify subscribers concurrently
      */
     private ExecutorService executor;

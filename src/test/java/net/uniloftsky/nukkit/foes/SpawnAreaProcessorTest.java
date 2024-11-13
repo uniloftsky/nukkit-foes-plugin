@@ -5,7 +5,6 @@ import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginManager;
-import net.uniloftsky.nukkit.foes.observer.EventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,8 +32,6 @@ public class SpawnAreaProcessorTest {
 
     @BeforeEach
     void setUp() {
-        EventPublisher.resetInstance();
-
         testSpawnAreaProcessor = new SpawnAreaProcessor(entityId, spawnArea);
     }
 

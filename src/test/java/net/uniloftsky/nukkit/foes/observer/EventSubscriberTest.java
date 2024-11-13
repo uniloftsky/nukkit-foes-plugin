@@ -1,18 +1,21 @@
 package net.uniloftsky.nukkit.foes.observer;
 
 import cn.nukkit.event.Event;
+import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.plugin.PluginLogger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -20,8 +23,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(MockitoExtension.class)
 public class EventSubscriberTest {
 
-    @Spy
-    private Map<Class<? extends Event>, EventHandler<? extends Event>> handlers = new HashMap<>();
+    private static final Map<Class<? extends Event>, EventHandler<? extends Event>> EVENT_HANDLERS = new HashMap<>();
 
     @Mock
     private PluginLogger logger;
@@ -31,32 +33,43 @@ public class EventSubscriberTest {
 
     @BeforeEach
     void setUp() {
-        EventPublisher.resetInstance();
+        EVENT_HANDLERS.clear();
     }
 
-    /*@Test
+    @Test
     @SuppressWarnings("unchecked")
-    public void testSubscribeOnEvent() {
+    public void testGetHandlersMap() {
 
         // given
-        Class<PlayerJoinEvent> eventType = PlayerJoinEvent.class;
-        EventHandler<PlayerJoinEvent> handler = mock(EventHandler.class);
+        Class<? extends Event> eventType = PlayerJoinEvent.class;
+        EventHandler<? extends Event> handler = mock(EventHandler.class);
+        EVENT_HANDLERS.put(eventType, handler);
 
-        EventPublisher publisher = mock(EventPublisher.class);
-        try (MockedStatic<EventPublisher> mockedStaticPublisher = mockStatic(EventPublisher.class)) {
-            mockedStaticPublisher.when(EventPublisher::getInstance).thenReturn(publisher);
+        // when
+        Map<Class<? extends Event>, EventHandler<? extends Event>> result = testSubscriber.getHandlersMap();
 
-            // when
-            testSubscriber.subscribeOnEvent(eventType, handler);
+        // then
+        assertNotNull(result);
+        EventHandler<? extends Event> actualHandler = result.get(eventType);
+        assertEquals(handler, actualHandler);
+    }
 
-            // then
-            then(publisher).should().subscribe(testSubscriber, eventType);
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetEventTypes() {
 
-            assertFalse(handlers.isEmpty());
-            EventHandler<? extends Event> actualHandler = handlers.get(eventType);
-            assertEquals(handler, actualHandler);
-        }
-    }*/
+        // given
+        Class<? extends Event> eventType = PlayerJoinEvent.class;
+        EventHandler<? extends Event> handler = mock(EventHandler.class);
+        EVENT_HANDLERS.put(eventType, handler);
+
+        // when
+        List<Class<? extends Event>> result = testSubscriber.getEventTypes();
+
+        // then
+        assertNotNull(result);
+        assertEquals(eventType, result.getFirst());
+    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -66,7 +79,7 @@ public class EventSubscriberTest {
         Class<? extends Event> eventType = TestEvent.class;
         Event event = new TestEvent();
         EventHandler<Event> handler = mock(EventHandler.class);
-        handlers.put(eventType, handler);
+        EVENT_HANDLERS.put(eventType, handler);
 
         // when
         testSubscriber.handleEvent(event);
@@ -96,10 +109,11 @@ public class EventSubscriberTest {
 
         @Override
         protected Map<Class<? extends Event>, EventHandler<? extends Event>> getHandlersMap() {
-            return Map.of();
+            return EVENT_HANDLERS;
         }
     }
 
-    private static class TestEvent extends Event { }
+    private static class TestEvent extends Event {
+    }
 
 }
