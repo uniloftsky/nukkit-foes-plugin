@@ -3,9 +3,7 @@ package net.uniloftsky.nukkit.foes.observer;
 import cn.nukkit.event.Event;
 import cn.nukkit.plugin.PluginLogger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Abstract class for event subscribers.
@@ -28,24 +26,32 @@ public abstract class EventSubscriber {
 
     protected EventSubscriber(PluginLogger logger) {
         this.logger = logger;
+        this.handlers = getHandlersMap();
+
+        // subscribe to registered event types
+        handlers.forEach((eventType, handler) -> {
+            EventPublisher.getInstance().subscribe(this);
+        });
     }
 
     /**
-     * Subscribe on the given event type and register a handler for it.
+     * List of registered handlers. Each subclass should define the list of events it wants to handle.
      *
-     * @param eventType class of event type to handle
-     * @param handler   event handler for the specific event type
-     * @param <T>       type of event
+     * @return map of event types each associated with the corresponding handler
      */
-    protected <T extends Event> void subscribeOnEvent(Class<T> eventType, EventHandler<T> handler) {
-        EventPublisher.getInstance().subscribe(this, eventType);
-        handlers.put(eventType, handler);
+    protected abstract Map<Class<? extends Event>, EventHandler<? extends Event>> getHandlersMap();
+
+    /**
+     * List of events the subscriber is subscribed to.
+     *
+     * @return list of event types
+     */
+    public List<Class<? extends Event>> getEventTypes() {
+        return new ArrayList<>(handlers.keySet());
     }
 
     /**
-     * Process the given event using its corresponding handler.
-     * <p>
-     * The handler for an event must be registered before the event can be handled.
+     * Process the given event.
      *
      * @param event event to handle
      */

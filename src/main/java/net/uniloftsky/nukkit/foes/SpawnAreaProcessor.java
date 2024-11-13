@@ -3,16 +3,11 @@ package net.uniloftsky.nukkit.foes;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
-import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.NukkitRandom;
-import cn.nukkit.plugin.PluginLogger;
 import cn.nukkit.scheduler.Task;
-import net.uniloftsky.nukkit.foes.observer.EventSubscriber;
 
 public class SpawnAreaProcessor extends Task {
-
-    private static final PluginLogger logger = FoesPlugin.getInstance().getLogger();
 
     /**
      * Spawn area
@@ -39,8 +34,6 @@ public class SpawnAreaProcessor extends Task {
         this.entityId = entityId;
         this.spawnArea = spawnArea;
         this.random = new NukkitRandom();
-
-        new SpawnAreaProcessorSubscriber();
     }
 
     /**
@@ -68,28 +61,10 @@ public class SpawnAreaProcessor extends Task {
         }
     }
 
-    public void spawnEntity(Entity entity) {
+    private void spawnEntity(Entity entity) {
         CreatureSpawnEvent spawnEvent = new CreatureSpawnEvent(entity.getNetworkId(), entity.getPosition(), entity.namedTag, CreatureSpawnEvent.SpawnReason.NATURAL);
         Server.getInstance().getPluginManager().callEvent(spawnEvent);
         entity.spawnToAll();
         spawnArea.addEntity(entity);
-    }
-
-    /**
-     * Events subscriber
-     */
-    private class SpawnAreaProcessorSubscriber extends EventSubscriber {
-
-        private SpawnAreaProcessorSubscriber() {
-            super(logger);
-
-            subscribeOnEvent(EntityDeathEvent.class, this::handleEntityDeathEvent);
-        }
-
-        private void handleEntityDeathEvent(EntityDeathEvent event) {
-            if (event.getEntity().getNetworkId() == entityId) {
-                spawnArea.removeEntity(event.getEntity());
-            }
-        }
     }
 }

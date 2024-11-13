@@ -36,11 +36,12 @@ public class EventPublisherTest {
     public void testSubscribe() {
 
         // given
-        EventSubscriber subscriber = mock(EventSubscriber.class);
         Class<? extends Event> eventType = PlayerJoinEvent.class;
+        EventSubscriber subscriber = mock(EventSubscriber.class);
+        given(subscriber.getEventTypes()).willReturn(List.of(eventType));
 
         // when
-        testPublisher.subscribe(subscriber, eventType);
+        testPublisher.subscribe(subscriber);
 
         // then
         int subscribersSize = subscribers.size();
@@ -50,7 +51,7 @@ public class EventPublisherTest {
         assertTrue(actualSubscribers.contains(subscriber));
 
         // test that the same subscriber can be registered only once
-        testPublisher.subscribe(subscriber, eventType);
+        testPublisher.subscribe(subscriber);
         assertEquals(subscribersSize, subscribers.size());
         assertTrue(actualSubscribers.contains(subscriber));
     }
@@ -61,8 +62,8 @@ public class EventPublisherTest {
         // given
         PlayerJoinEvent event = mock(PlayerJoinEvent.class);
         EventSubscriber subscriber = mock(EventSubscriber.class);
-        Class<PlayerJoinEvent> eventType = PlayerJoinEvent.class;
-        testPublisher.subscribe(subscriber, eventType);
+        given(subscriber.getEventTypes()).willReturn(List.of(PlayerJoinEvent.class));
+        testPublisher.subscribe(subscriber);
 
         // when
         testPublisher.pushEvent(event);

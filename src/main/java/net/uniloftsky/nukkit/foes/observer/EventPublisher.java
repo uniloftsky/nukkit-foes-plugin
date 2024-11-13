@@ -38,6 +38,13 @@ public final class EventPublisher {
     }
 
     /**
+     * Reset event publisher instance. Must be used only for test purpose!
+     */
+    public static synchronized void resetInstance() {
+        INSTANCE = null;
+    }
+
+    /**
      * Executor service to notify subscribers concurrently
      */
     private ExecutorService executor;
@@ -57,11 +64,12 @@ public final class EventPublisher {
      * The subscriber will be notified whenever an event of the specified type is published.
      *
      * @param subscriber subscriber to register
-     * @param eventTypes event types to subscribe to
      */
-    @SafeVarargs /* safe because it calls the internal method */
-    public final void subscribe(EventSubscriber subscriber, Class<? extends Event>... eventTypes) {
-        for (Class<? extends Event> event : eventTypes) {
+    public void subscribe(EventSubscriber subscriber) {
+        if (subscriber.getEventTypes().isEmpty()) {
+            throw new IllegalArgumentException("Subscriber should have at least one registered event type");
+        }
+        for (Class<? extends Event> event : subscriber.getEventTypes()) {
             List<EventSubscriber> subscribersByType = subscribers.computeIfAbsent(event, k -> new ArrayList<>());
             if (!subscribersByType.contains(subscriber)) {
                 subscribersByType.add(subscriber);
