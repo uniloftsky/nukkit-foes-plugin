@@ -30,7 +30,7 @@ public class EventPublisherTest {
     private Map<Class<? extends Event>, List<EventSubscriber>> subscribers = new HashMap<>();
 
     @InjectMocks
-    private EventPublisher testPublisher = new EventPublisher(executorService);
+    private EventPublisher testPublisher = new TestPublisher(executorService);
 
     @Test
     public void testSubscribe() {
@@ -54,6 +54,24 @@ public class EventPublisherTest {
         testPublisher.subscribe(subscriber);
         assertEquals(subscribersSize, subscribers.size());
         assertTrue(actualSubscribers.contains(subscriber));
+    }
+
+    @Test
+    public void testSubscribeInvalidSubscriber() {
+
+        // given
+        EventSubscriber subscriber = mock(EventSubscriber.class);
+
+        try {
+
+            // when
+            testPublisher.subscribe(subscriber);
+        } catch (IllegalArgumentException ex) {
+
+            // then
+            assertNotNull(ex);
+            assertNotNull(ex.getMessage());
+        }
     }
 
     @Test
@@ -99,6 +117,13 @@ public class EventPublisherTest {
 
         // then
         then(executorService).should(times(0)).shutdown();
+    }
+
+    private static class TestPublisher extends EventPublisher {
+
+        public TestPublisher(ExecutorService executorService) {
+            super(executorService);
+        }
     }
 
 }

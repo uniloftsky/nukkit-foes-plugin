@@ -8,34 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Events publisher that pushes different type of {@link Event} further to its subscribers
  */
-public final class EventPublisher {
-
-    /**
-     * Default executor service for event publisher
-     */
-    private static final ExecutorService DEFAULT_EXECUTOR = Executors.newCachedThreadPool();
-
-    /**
-     * Publisher instance. Null before it's enabled
-     */
-    private static EventPublisher INSTANCE;
-
-    /**
-     * Get singleton instance
-     *
-     * @return one and only one instance of the event publisher
-     */
-    public static synchronized EventPublisher getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new EventPublisher(DEFAULT_EXECUTOR);
-        }
-        return INSTANCE;
-    }
+public abstract class EventPublisher {
 
     /**
      * Executor service to notify subscribers concurrently
@@ -47,7 +24,7 @@ public final class EventPublisher {
      */
     private Map<Class<? extends Event>, List<EventSubscriber>> subscribers = new ConcurrentHashMap<>();
 
-    EventPublisher(ExecutorService executorService) {
+    public EventPublisher(ExecutorService executorService) {
         this.executor = executorService;
     }
 
@@ -75,7 +52,7 @@ public final class EventPublisher {
      *
      * @param event event to publish
      */
-    public void pushEvent(Event event) {
+    protected void pushEvent(Event event) {
         Optional<List<EventSubscriber>> optionalSubscribers = Optional.ofNullable(subscribers.get(event.getClass()));
         optionalSubscribers.ifPresent(subscribers -> {
             for (EventSubscriber subscriber : subscribers) {
