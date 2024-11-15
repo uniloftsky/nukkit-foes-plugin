@@ -6,6 +6,7 @@ import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.scheduler.Task;
+import net.uniloftsky.nukkit.foes.ai.zombie.MyZombieBuilder;
 
 /**
  * Scheduled task for spawn area. Must be used along with {@link cn.nukkit.scheduler.ServerScheduler}
@@ -22,6 +23,8 @@ public class SpawnAreaProcessor extends Task {
      */
     private NukkitRandom random;
 
+    private MyZombieBuilder zombieBuilder;
+
     /**
      * Entity NETWORK_ID value
      */
@@ -36,6 +39,7 @@ public class SpawnAreaProcessor extends Task {
     public SpawnAreaProcessor(int entityId, SpawnArea spawnArea) {
         this.entityId = entityId;
         this.spawnArea = spawnArea;
+        this.zombieBuilder = new MyZombieBuilder();
         this.random = new NukkitRandom();
     }
 
@@ -48,7 +52,7 @@ public class SpawnAreaProcessor extends Task {
     public void onRun(int period) {
         if (!spawnArea.isFull()) {
             Position nextSpawnPosition = spawnArea.getNextSpawnPosition(random);
-            Entity entity = Entity.createEntity(entityId, nextSpawnPosition);
+            Entity entity = zombieBuilder.build("Name?", nextSpawnPosition);
             spawnEntity(entity);
         }
     }

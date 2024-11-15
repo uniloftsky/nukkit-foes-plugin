@@ -4,6 +4,7 @@ import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.entity.CreatureSpawnEvent;
 import cn.nukkit.level.Position;
+import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.plugin.PluginManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,9 @@ public class SpawnAreaProcessorTest {
 
             // mocking created entity
             Entity createdEntity = mock(Entity.class);
-            mockedStaticEntity.when(() -> Entity.createEntity(entityId, nextSpawnPosition)).thenReturn(createdEntity);
+            CompoundTag compoundTag = mock(CompoundTag.class);
+            mockedStaticEntity.when(() -> Entity.getDefaultNBT(nextSpawnPosition)).thenReturn(compoundTag);
+            mockedStaticEntity.when(() -> Entity.createEntity(eq(String.valueOf(entityId)), eq(nextSpawnPosition.getChunk()), any(CompoundTag.class))).thenReturn(createdEntity);
 
             // mocking server to return mocked plugin manager
             Server server = mock(Server.class);
