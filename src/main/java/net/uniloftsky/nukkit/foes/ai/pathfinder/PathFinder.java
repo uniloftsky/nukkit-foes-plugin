@@ -10,13 +10,11 @@ import java.util.List;
  * Pathfinder class to find a path from one {@link Node} to another.
  * <p>
  * This class is an implementation of <b>A* algorithm</b>.
- * <p>
- * For now, it supports only path finding in <b>two-dimensional</b> space.
  */
 public class PathFinder {
 
     /**
-     * Search limit. If algorithm gets into this limit, the path is marked as unreachable
+     * Search limit. If algorithm gets into this limit, the algorithm stops the search
      */
     private static final int SEARCH_LIMIT = 1000;
 
@@ -66,7 +64,7 @@ public class PathFinder {
     /**
      * Primary method to begin the search.
      *
-     * @return linked list that represents the path to the finish Node
+     * @return linked list that represents the path from the start Node to the finish Node
      */
     public List<Node> search() {
         init();
@@ -85,7 +83,7 @@ public class PathFinder {
                     bestNode = node;
                     bestFCost = node.getFCost();
                 } else if (node.getFCost() == bestFCost) {
-                    if (node.getGCost() < node.getGCost()) {
+                    if (node.getGCost() < bestNode.getGCost()) {
                         bestNode = node;
                     }
                 }

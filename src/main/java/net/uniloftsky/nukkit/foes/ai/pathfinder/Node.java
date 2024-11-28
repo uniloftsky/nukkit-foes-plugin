@@ -6,12 +6,12 @@ import java.util.Objects;
 
 /**
  * Node is a part of A* pathfinding algorithm.
- * Node is basically a {@link Vector3} with coordinates.
+ * The Node object contains its coordinates, G-Cost, H-Cost and F-Cost.
  */
 public class Node {
 
     /**
-     * Parent node to build the path using back-tracking
+     * Parent node to build the result path using back-tracking
      */
     private Node parent;
 
@@ -43,26 +43,21 @@ public class Node {
         this.position = new Vector3(x, y, z);
     }
 
-    public Node getParent() {
-        return parent;
-    }
-
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
-
+    /**
+     * Get Node position/coordinates.
+     *
+     * @return {@link Vector3}
+     */
     public Vector3 getPosition() {
         return position;
     }
 
-    public void calculateGCost(Node currentNode) {
-        if (this != currentNode) {
-            double xDifference = Math.abs(this.getPosition().getX() - currentNode.getPosition().getX());
-            double zDifference = Math.abs(this.getPosition().getZ() - currentNode.getPosition().getZ());
-            this.gCost = zDifference + xDifference;
-        }
-    }
-
+    /**
+     * Get Node G-Cost.
+     *
+     * @return G-Cost of the node
+     * @throws IllegalStateException if G-cost of the Node wasn't calculated yet
+     */
     public double getGCost() {
         if (gCost <= 0) {
             throw new IllegalStateException("G-Cost for the Node wasn't calculated!");
@@ -70,7 +65,27 @@ public class Node {
         return gCost;
     }
 
-    public void calculateHCost(Node finishNode) {
+    /**
+     * Get Node F-Cost.
+     *
+     * @return F-Cost of the Node
+     */
+    public double getFCost() {
+        if (fCost == 0) {
+            fCost = gCost + hCost;
+        }
+        return fCost;
+    }
+
+    Node getParent() {
+        return parent;
+    }
+
+    void setParent(Node parent) {
+        this.parent = parent;
+    }
+
+    void calculateHCost(Node finishNode) {
         if (this != finishNode) {
             double xDifference = Math.abs(finishNode.getPosition().getX() - this.getPosition().getX());
             double zDifference = Math.abs(finishNode.getPosition().getZ() - this.getPosition().getZ());
@@ -78,18 +93,12 @@ public class Node {
         }
     }
 
-    public double getHCost() {
-        if (hCost <= 0) {
-            throw new IllegalStateException("H-Cost for the Node wasn't calculated!");
+    void calculateGCost(Node currentNode) {
+        if (this != currentNode) {
+            double xDifference = Math.abs(this.getPosition().getX() - currentNode.getPosition().getX());
+            double zDifference = Math.abs(this.getPosition().getZ() - currentNode.getPosition().getZ());
+            this.gCost = zDifference + xDifference;
         }
-        return hCost;
-    }
-
-    public double getFCost() {
-        if (fCost == 0) {
-            fCost = gCost + hCost;
-        }
-        return fCost;
     }
 
     @Override
