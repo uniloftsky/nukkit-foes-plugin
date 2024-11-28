@@ -1,10 +1,8 @@
 package net.uniloftsky.nukkit.foes;
 
-import cn.nukkit.Player;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.entity.EntityDeathEvent;
-import cn.nukkit.event.player.PlayerJumpEvent;
 import net.uniloftsky.nukkit.foes.observer.EventPublisher;
 
 import java.util.concurrent.ExecutorService;
@@ -26,14 +24,6 @@ public class EventListener extends EventPublisher implements Listener {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         pushEvent(event);
-    }
-
-    @EventHandler
-    public void onPlayerJump(PlayerJumpEvent event) {
-        Player player = event.getPlayer();
-        System.out.println(player.getDirection());
-        player.setYaw(0);
-        player.updateMovement();
     }
 
 }
