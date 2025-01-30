@@ -30,7 +30,7 @@ public class FoesPlugin extends PluginBase {
         EntityZombie.registerEntity(String.valueOf(MyZombie.NETWORK_ID), MyZombie.class);
 
         // initializing foes spawn area
-        SpawnArea spawnArea = new SpawnArea(List.of(new Position(54, 86, 243, this.getServer().getDefaultLevel()), new Position(59, 86, 243, this.getServer().getDefaultLevel())), 5);
+        SpawnArea spawnArea = new SpawnArea(List.of(new Position(54, 86, 243, this.getServer().getDefaultLevel()), new Position(59, 86, 243, this.getServer().getDefaultLevel())), 1);
 
         int entityId = MyZombie.NETWORK_ID;
         SpawnAreaProcessor spawnAreaProcessor = new SpawnAreaProcessor(entityId, spawnArea);

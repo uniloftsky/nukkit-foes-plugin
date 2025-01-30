@@ -15,10 +15,16 @@ public class Node {
      */
     private Node parent;
 
+    private int x;
+
+    private int y;
+
+    private int z;
+
     /**
      * Node coordinates
      */
-    private final Vector3 position;
+    private Vector3 position;
 
     /**
      * G-Cost is a path cost from the <b>current processing</b> Node to <b>this</b> Node
@@ -35,12 +41,14 @@ public class Node {
      */
     private double fCost;
 
-    Node(Vector3 position) {
+    public Node(Vector3 position) {
         this.position = new Vector3(position.getX(), position.getY(), position.getZ());
     }
 
-    Node(double x, double y, double z) {
-        this.position = new Vector3(x, y, z);
+    public Node(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     /**
@@ -77,6 +85,18 @@ public class Node {
         return fCost;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
+
     Node getParent() {
         return parent;
     }
@@ -87,17 +107,17 @@ public class Node {
 
     void calculateHCost(Node finishNode) {
         if (this != finishNode) {
-            double xDifference = Math.abs(finishNode.getPosition().getX() - this.getPosition().getX());
-            double zDifference = Math.abs(finishNode.getPosition().getZ() - this.getPosition().getZ());
-            this.hCost = zDifference + xDifference;
+            double xDifference = Math.abs(finishNode.getX() - this.getX());
+            double zDifference = Math.abs(finishNode.getZ() - this.getZ());
+            this.hCost = Math.min(xDifference, zDifference) * Math.sqrt(2) + Math.abs(xDifference - zDifference);
         }
     }
 
     void calculateGCost(Node currentNode) {
         if (this != currentNode) {
-            double xDifference = Math.abs(this.getPosition().getX() - currentNode.getPosition().getX());
-            double zDifference = Math.abs(this.getPosition().getZ() - currentNode.getPosition().getZ());
-            this.gCost = zDifference + xDifference;
+            double xDifference = Math.abs(this.getX() - currentNode.getX());
+            double zDifference = Math.abs(this.getZ() - currentNode.getZ());
+            this.gCost = Math.min(xDifference, zDifference) * Math.sqrt(2) + Math.abs(xDifference - zDifference);
         }
     }
 
@@ -106,18 +126,20 @@ public class Node {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Node node = (Node) o;
-        return Objects.equals(position, node.position);
+        return x == node.x && y == node.y && z == node.z;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(position);
+        return Objects.hash(x, y, z);
     }
 
     @Override
     public String toString() {
-        return "{" +
-                "position=" + position +
+        return "Node{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
                 ", gCost=" + gCost +
                 ", hCost=" + hCost +
                 ", fCost=" + fCost +

@@ -1,7 +1,5 @@
 package net.uniloftsky.nukkit.foes.ai.pathfinder;
 
-import cn.nukkit.math.Vector3;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +14,7 @@ public class PathFinder {
     /**
      * Search limit. If algorithm gets into this limit, the algorithm stops the search
      */
-    private static final int SEARCH_LIMIT = 1000;
+    private static final int SEARCH_LIMIT = 100000;
 
     /**
      * List with open for processing Nodes
@@ -111,37 +109,45 @@ public class PathFinder {
     /**
      * Open the Nodes near to given Node.
      *
-     * @param node Node to open its neighbors
+     * @param parentNode Node to open its neighbors
      */
-    private void openNearbyNodes(Node node) {
-        Vector3 nodePosition = node.getPosition();
+    private void openNearbyNodes(Node parentNode) {
 
         // open the next Node by positive x-axis
-        openNode(nodePosition.getX() + 1, nodePosition.getZ(), node);
+        openNode(parentNode.getX() + 1, parentNode.getY(), parentNode.getZ(), parentNode);
 
         // open the next Node by negative x-axis
-        openNode(nodePosition.getX() - 1, nodePosition.getZ(), node);
+        openNode(parentNode.getX() - 1, parentNode.getY(), parentNode.getZ(), parentNode);
 
         // open the next Node by positive z-axis
-        openNode(nodePosition.getX(), nodePosition.getZ() + 1, node);
+        openNode(parentNode.getX(), parentNode.getY(), parentNode.getZ() + 1, parentNode);
 
         // open the next Node by negative z-axis
-        openNode(nodePosition.getX(), nodePosition.getZ() - 1, node);
+        openNode(parentNode.getX(), parentNode.getY(), parentNode.getZ() - 1, parentNode);
+
+        openNode(parentNode.getX() - 1, parentNode.getY(), parentNode.getZ() - 1, parentNode);
+
+        openNode(parentNode.getX() - 1, parentNode.getY(), parentNode.getZ() + 1, parentNode);
+
+        openNode(parentNode.getX() + 1, parentNode.getY(), parentNode.getZ() - 1, parentNode);
+
+        openNode(parentNode.getX() + 1, parentNode.getY(), parentNode.getZ() + 1, parentNode);
     }
 
     /**
      * Open the Node with the given coordinates.
      *
      * @param x x-coordinate
+     * @param y y-coordinate
      * @param z z-coordinate
      */
-    private void openNode(double x, double z, Node currentNode) {
-        Node node = new Node(x, 0, z);
+    private void openNode(int x, int y, int z, Node parentNode) {
+        Node node = new Node(x, y, z);
         if (!openList.contains(node) && !closedList.contains(node)) {
-            node.setParent(currentNode);
+            node.setParent(parentNode);
 
             // calculate G and H costs
-            node.calculateGCost(currentNode);
+            node.calculateGCost(parentNode);
             node.calculateHCost(finishNode);
 
             openList.add(node);
@@ -160,4 +166,7 @@ public class PathFinder {
         openList.add(currentNode);
     }
 
+    public Node getFinishNode() {
+        return finishNode;
+    }
 }

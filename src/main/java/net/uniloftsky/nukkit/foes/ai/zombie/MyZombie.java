@@ -1,11 +1,16 @@
 package net.uniloftsky.nukkit.foes.ai.zombie;
 
-import cn.nukkit.Player;
-import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.mob.EntityZombie;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
+import cn.nukkit.nbt.tag.DoubleTag;
+import cn.nukkit.nbt.tag.ListTag;
+import net.uniloftsky.nukkit.foes.ai.pathfinder.Node;
+import net.uniloftsky.nukkit.foes.ai.pathfinder.PathFinder;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class MyZombie extends EntityZombie {
 
@@ -20,22 +25,32 @@ public class MyZombie extends EntityZombie {
      */
     public static final float DEFAULT_SPEED = 0.1f;
 
+    private PathFinder pathFinder;
+    private List<Node> path;
+    private Iterator<Node> pathIterator;
     private boolean movement = true;
-    protected Vector3 target = new Vector3(67, 86, 260);
-    private boolean friendly;
-    protected Entity followTarget;
+    protected Vector3 target;
 
     public MyZombie(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
+
+        ListTag<DoubleTag> position = nbt.getList("Pos", DoubleTag.class);
+        Double x = position.get(0).getData();
+        Double y = position.get(1).getData();
+        Double z = position.get(2).getData();
+        Node startNode = new Node(x.intValue(), y.intValue(), z.intValue());
+        Node finishNode = new Node(70, 86, 256);
+
+        this.pathFinder = new PathFinder(startNode, finishNode);
+        this.path = pathFinder.search();
+
+        this.pathIterator = this.path.iterator();
+        this.target = new Vector3(x, y, z);
     }
 
     @Override
     public int getNetworkId() {
         return NETWORK_ID;
-    }
-
-    public void setFriendly(boolean bool) {
-        this.friendly = bool;
     }
 
     @Override
@@ -61,56 +76,26 @@ public class MyZombie extends EntityZombie {
 
     public Vector3 updateMove(int tickDiff) {
         if (movement) {
-            Vector3 target = this.target;
-            double deltaX = target.x - this.x;
-            double deltaY = target.z - this.z;
+            if ((this.x >= target.x && this.x <= target.x + 1) && (this.z >= target.z && this.z <= target.z + 1) && this.pathIterator.hasNext()) {
+                Node node = this.pathIterator.next();
+                this.target = new Vector3(node.getX(), node.getY(), node.getZ());
+            }
+            double deltaX = target.x + 0.5 - this.x;
+            double deltaY = target.z + 0.5 - this.z;
             double summ = Math.abs(deltaX) + Math.abs(deltaY);
 
             this.motionX = DEFAULT_SPEED * (deltaX / summ);
             this.motionZ = DEFAULT_SPEED * (deltaY / summ);
 
-            this.move(this.motionX, this.motionY, this.motionY);
-            this.yaw = calculateYaw(target.x, target.z);
+            this.move(this.motionX, this.motionY, this.motionZ);
+            this.yaw = calculateYaw(target.x + 0.5, target.z + 0.5);
             this.updateMovement();
-            if (this.x >= target.x) {
+            if ((this.x >= pathFinder.getFinishNode().getX() && this.x <= pathFinder.getFinishNode().getX() + 1)
+                    && (this.z >= pathFinder.getFinishNode().getZ() && this.z <= pathFinder.getFinishNode().getZ() + 1)) {
                 movement = false;
             }
         }
         return null;
-    }
-
-    public int nearbyDistanceMultiplier() {
-        return 1;
-    }
-
-    public void setMovement(boolean value) {
-        this.movement = value;
-    }
-
-    public boolean isMovement() {
-        return this.movement;
-    }
-
-    public boolean isKnockback() {
-        return this.knockBackTime > 0;
-    }
-
-    public boolean canTarget(Entity entity) {
-        return entity instanceof Player;
-    }
-
-    public boolean isFriendly() {
-        return this.friendly;
-    }
-
-    public Vector3 getTargetVector() {
-        if (this.followTarget != null) {
-            return this.followTarget;
-        } else if (this.target instanceof Entity) {
-            return this.target;
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -127,11 +112,11 @@ public class MyZombie extends EntityZombie {
 
         /*
         Delta x should be negative because Minecraft's yaw system is different from the typical Cartesian coordinate system.
-        In Minecraft the positive x-axis corresponds  -90 degrees while in the default system the x-axis corresponds to 0 degrees.
+        In Minecraft the positive x-axis corresponds -90 degrees while in the default system the x-axis corresponds to 0 degrees.
         */
         double deltaX = -(targetX - this.x);
         double deltaZ = targetZ - this.z;
         double yawInRadians = Math.atan2(deltaZ, deltaX);
-        return -Math.toDegrees(yawInRadians) + 90;
+        return -Math.toDegrees(yawInRadians) + 90; // converting the whole result to Minecraft's yaw system
     }
 }
